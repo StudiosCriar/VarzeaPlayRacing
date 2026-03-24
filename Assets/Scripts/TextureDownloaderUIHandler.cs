@@ -1,4 +1,5 @@
 using System;
+using Advertisement;
 using UnityEngine;
 
 [RequireComponent(typeof(Network.TextureDownloader))]
@@ -9,6 +10,11 @@ public class TextureDownloaderUIHandler : MonoBehaviour
     private void Awake()
     {
         _textureDownloader = GetComponent<Network.TextureDownloader>();
+    }
+    
+    private void Start()
+    {
+        AdManager.Instance.HideBanner();
     }
         
     private void OnEnable()
@@ -35,22 +41,30 @@ public class TextureDownloaderUIHandler : MonoBehaviour
         switch (error.ErrorType)
         {
             case Network.TextureDownloader.ErrorType.NetworkUnavailable:
-                OverlayCanvasManager.Instance.Open("No internet connection available. Using cache.".ToUpper(), _textureDownloader.LoadTexturesOffline);
+                OverlayCanvasManager.Instance.Open("No internet connection available. Using cache.".ToUpper(), () =>
+                {
+                    _textureDownloader.LoadTexturesOffline();
+                    AdManager.Instance.ShowBanner();
+                });
                 break;
             case Network.TextureDownloader.ErrorType.ListingFailed:
-                OverlayCanvasManager.Instance.Open(error.Message.ToUpper(), _textureDownloader.LoadTexturesOffline);
+                OverlayCanvasManager.Instance.Open(error.Message.ToUpper(), () =>
+                {
+                    _textureDownloader.LoadTexturesOffline();
+                    AdManager.Instance.ShowBanner();
+                });
                 break;
             case Network.TextureDownloader.ErrorType.CacheFileError:
-                OverlayCanvasManager.Instance.Open(error.Message.ToUpper(), () => _textureDownloader.Load());
+                OverlayCanvasManager.Instance.Open(error.Message.ToUpper(), () =>
+                {
+                    _textureDownloader.Load();
+                    AdManager.Instance.ShowBanner();
+                });
                 break;
             case Network.TextureDownloader.ErrorType.ReadFromCacheFailed:
-                OverlayCanvasManager.Instance.Open(error.Message.ToUpper());
-                break;
             case Network.TextureDownloader.ErrorType.CachedTextureNotFound:
-                OverlayCanvasManager.Instance.Open(error.Message.ToUpper());
-                break;
             case Network.TextureDownloader.ErrorType.DownloadFailed:
-                OverlayCanvasManager.Instance.Open(error.Message.ToUpper());
+                OverlayCanvasManager.Instance.Open(error.Message.ToUpper(), AdManager.Instance.ShowBanner);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -60,5 +74,6 @@ public class TextureDownloaderUIHandler : MonoBehaviour
     private static void OnFinish()
     {
         OverlayCanvasManager.Instance.Close();
+        AdManager.Instance.ShowBanner();
     }
 }

@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Advertisement;
 using ALIyerEdon;
 
 namespace ALIyerEdon
@@ -93,9 +94,14 @@ namespace ALIyerEdon
             }
 
             if (startUI)
+            {
                 startUI.SetActive(false);
+                AdManager.Instance.HideBanner();
+            }
+            
             if (raceUI)
                 raceUI.SetActive(false);
+            
             if (mobileControls)
                 mobileControls.SetActive(false);
 
@@ -168,7 +174,7 @@ namespace ALIyerEdon
             }
 
             startUI.GetComponent<Start_Finish_UI>().totalScores.text =
-                "Total Scores : " +
+                "Total Score: " +
                 PlayerPrefs.GetInt("TotalScores").ToString();
         }
         public void StartRace_Button()
@@ -181,6 +187,7 @@ namespace ALIyerEdon
         }
         public void StartRace()
         {
+            AdManager.Instance.ShowBanner();
             StartCoroutine(StartRaceDelay());
         }
         IEnumerator StartRaceDelay()
@@ -265,6 +272,7 @@ namespace ALIyerEdon
              FindObjectOfType<InputSystem>().canControl = false;
              FindObjectOfType<CameraSwitch>().SelectCamera(0);
 
+             AdManager.Instance.HideBanner();
              raceFinishUI.SetActive(true);
 
              FindObjectOfType<Start_Finish_UI>().finishRaceMenu.SetActive(true);
@@ -285,7 +293,7 @@ namespace ALIyerEdon
                  FindObjectOfType<Start_Finish_UI>().Update_Award(3, levelID);
 
              startUI.GetComponent<Start_Finish_UI>().totalScores.text =
-                 "Total Scores : " +
+                 "Total Score: " +
                  PlayerPrefs.GetInt("TotalScores").ToString();
          }
 

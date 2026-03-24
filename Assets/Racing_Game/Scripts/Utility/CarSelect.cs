@@ -50,7 +50,7 @@ namespace ALIyerEdon
 			ID = PlayerPrefs.GetInt("CarID");
 
 			// Update total scores display
-			TotalScores.text = "Total Scores : " + PlayerPrefs.GetInt("TotalScores").ToString();
+			TotalScores.text = "Total Score: " + PlayerPrefs.GetInt("TotalScores").ToString();
 
 			// Distroy all players car before instantiate the new one
 			Destroy(GameObject.FindGameObjectWithTag("Player"));
@@ -199,7 +199,7 @@ namespace ALIyerEdon
 				purchaseUI.SetActive(false);
 
 				// Update total scores display
-				TotalScores.text = "Total Scores : " + PlayerPrefs.GetInt("TotalScores").ToString();
+				TotalScores.text = "Total Score: " + PlayerPrefs.GetInt("TotalScores").ToString();
 			}
 			else
 			{

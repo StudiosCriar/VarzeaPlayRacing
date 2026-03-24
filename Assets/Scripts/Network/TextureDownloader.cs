@@ -12,10 +12,10 @@ namespace Network
     [RequireComponent(typeof(NetworkManager))]
     public class TextureDownloader : MonoBehaviour
     {
-        [SerializeField, Tooltip("Texture directory URL")]
+        [SerializeField] [Tooltip("Texture directory URL")]
         private string baseUrl;
 
-        [SerializeField, Tooltip("This key must be unique. No other texture downloader should have the same key")]
+        [SerializeField] [Tooltip("This key must be unique. No other texture downloader should have the same key")]
         private string key;
 
         [SerializeField] private bool loadOnStart = true;
@@ -55,7 +55,7 @@ namespace Network
         {
             _networkManager = GetComponent<NetworkManager>();
 
-            #if !UNITY_WEBGL
+#if !UNITY_WEBGL
             Directory.CreateDirectory(TextureCacheDirectoryPath);
 
             try
@@ -80,9 +80,9 @@ namespace Network
                 _textureCache = new Dictionary<Uri, CachedTexture>();
                 return;
             }
-            #else // WEBGL
+#else // WEBGL
             _textureCache = new Dictionary<Uri, CachedTexture>();
-            #endif
+#endif
 
             if (loadOnStart) Load();
         }
@@ -90,10 +90,10 @@ namespace Network
         [ContextMenu("Load")]
         public async void Load(bool useCacheIfOffline = true)
         {
-            #if UNITY_WEBGL
+#if UNITY_WEBGL
             // WEBGL: Sempre carrega online, ignora cache local
             LoadTexturesOnline();
-            #else
+#else
             OnLog?.Invoke("Checking internet connection...");
 
             if (Application.internetReachability != NetworkReachability.NotReachable)
@@ -110,17 +110,14 @@ namespace Network
             });
 
             if (useCacheIfOffline) LoadTexturesOffline();
-            #endif
+#endif
         }
 
         private async Task<List<Uri>> ListDirectory(Uri url, string[] extensions = null)
         {
             var request = await _networkManager.Get(url, null);
 
-            if (request.error != null)
-            {
-                throw new Exception(request.error);
-            }
+            if (request.error != null) throw new Exception(request.error);
 
             return NetworkManager.ParseApacheDirectoryIndex(url, request.downloadHandler.text, extensions);
         }
@@ -140,10 +137,7 @@ namespace Network
             // Debug.Log($"Response Code: {request.responseCode}");
 
             // Cache hit
-            if (request.responseCode == 304)
-            {
-                return null;
-            }
+            if (request.responseCode == 304) return null;
 
             if (request.error != null)
             {
@@ -263,9 +257,9 @@ namespace Network
                 return;
             }
 
-            #if !UNITY_WEBGL
+#if !UNITY_WEBGL
             ClearCache(fileList);
-            #endif
+#endif
 
             foreach (var uri in fileList)
             {
@@ -292,26 +286,27 @@ namespace Network
 
                 if (remoteTexture == null)
                 {
-                    #if !UNITY_WEBGL
+#if !UNITY_WEBGL
                     _textures[uri] = await LoadTextureFromCache(uri);
-                    #endif
+#endif
                     continue;
                 }
 
                 _textures[uri] = remoteTexture;
                 remoteTexture.name = textureName;
 
-                #if !UNITY_WEBGL
+#if !UNITY_WEBGL
                 var path = GetTexturePath(uri);
                 await File.WriteAllBytesAsync(path, remoteTexture.EncodeToPNG());
-                #endif
+#endif
             }
 
             OnTexturesLoaded?.Invoke();
 
-            #if !UNITY_WEBGL
-            await File.WriteAllTextAsync(AssetsFilePath, JsonConvert.SerializeObject(_textureCache, Formatting.Indented));
-            #endif
+#if !UNITY_WEBGL
+            await File.WriteAllTextAsync(AssetsFilePath,
+                JsonConvert.SerializeObject(_textureCache, Formatting.Indented));
+#endif
         }
 
         private string GetTexturePath(Uri uri)

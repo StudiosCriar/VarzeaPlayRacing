@@ -57,7 +57,7 @@ namespace ALIyerEdon
 			purchaseInfo.text = "";
 
 			// Update total scores display
-			TotalScores.text = "Total Scores : " + PlayerPrefs.GetInt("TotalScores").ToString();
+			TotalScores.text = "Total Score: " + PlayerPrefs.GetInt("TotalScores").ToString();
 
 			difficultyLevel.value = PlayerPrefs.GetInt("Difficulty Level");
 
@@ -118,7 +118,7 @@ namespace ALIyerEdon
 				levelPriceText[currentSelectedLevel].text = "";
 
 				// Update total scores display
-				TotalScores.text = "Total Scores : " + PlayerPrefs.GetInt("TotalScores").ToString();
+				TotalScores.text = "Total Score: " + PlayerPrefs.GetInt("TotalScores").ToString();
 
 				purchaseUI.SetActive(false);
 

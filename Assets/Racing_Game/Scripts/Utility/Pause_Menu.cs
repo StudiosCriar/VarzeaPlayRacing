@@ -5,6 +5,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using Advertisement;
 using UnityEngine;
 using UnityEngine.UI;
 using ALIyerEdon;
@@ -27,6 +28,7 @@ namespace ALIyerEdon
                 AudioListener.volume = 0;
                 Time.timeScale = 0;
                 pauseMenu.SetActive(true);
+                AdManager.Instance.HideBanner();
             }
         }
 
@@ -35,22 +37,59 @@ namespace ALIyerEdon
             AudioListener.volume = 1f;
             Time.timeScale = FindObjectOfType<Race_Manager>().timeScale;
             pauseMenu.SetActive(false);
+            AdManager.Instance.ShowBanner();
         }
 
         public void Restart()
         {
             AudioListener.volume = 1f;
             Time.timeScale = FindObjectOfType<Race_Manager>().timeScale;
-            Loading.text = "Loading...";
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
+            
+            var operation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+
+            if (operation == null)
+            {
+                Debug.LogError("SceneManager.LoadSceneAsync operation is null");
+                return;
+            }
+            
+            operation.allowSceneActivation = false;
+            
+            AdManager.Instance.ShowInterstitial(() =>
+            {
+                Loading.text = "Loading...";
+                operation.allowSceneActivation = true;
+            });
         }
+        
         public void Exit()
         {
             AudioListener.volume = 1f;
             Time.timeScale = FindObjectOfType<Race_Manager>().timeScale;
-            Loading.text = "Loading...";
-            UnityEngine.SceneManagement.SceneManager.LoadScene(GarageScene);
+
+            if (!raceIsStarted)
+            {
+                Loading.text = "Loading...";
+                UnityEngine.SceneManagement.SceneManager.LoadScene(GarageScene);
+                return;
+            }
+            
+            var operation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(GarageScene);
+            
+            if (operation == null)
+            {
+                Debug.LogError("SceneManager.LoadSceneAsync operation is null");
+                return;
+            }
+            
+            operation.allowSceneActivation = false;
+            
+            AdManager.Instance.ShowInterstitial(() =>
+            {
+                Loading.text = "Loading...";
+                operation.allowSceneActivation = true;
+            });
         }
     }
 }
